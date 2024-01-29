@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  prediction_app_backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-backend
+    env_file:
+      - config/backend.env
+      - config/s3.env
+      - config/db.env
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/:/opt/app-root/src/:rw
+
+  prediction_app_celery:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-celery
+    restart: unless-stopped
+    env_file:
+      - config/s3.env
+      - config/db.env
+    depends_on:
+      - redis
+    volumes:
+      - ./src/prediction_app/tasks:/opt/app-root/src/prediction_app/tasks:rw
+      - ./src/prediction_app/storage:/opt/app-root/src/prediction_app/storage:rw
+      - ./src/prediction_app/db:/opt/app-root/src/prediction_app/db:rw
+      - ./src/prediction_app/domain:/opt/app-root/src/prediction_app/domain:rw
+
+  redis:
+    image: redis:6
+    environment:
+      - REDIS_MASTER_PASSWORD=redis_master_password
+      - REDIS_PASSWORD=redis_password
+    restart: always
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: server /data --console-address :8082
+    environment:
+      MINIO_ROOT_USER: minio_user
+      MINIO_ROOT_PASSWORD: minio_password
+    volumes:
+      - ./data:/data
+    ports:
+      - "8082:8082"
+      - "9000:9000"
+
+  postgres:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: postgres_db
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"

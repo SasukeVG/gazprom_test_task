@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "gazprom-test-task"
+version = "0.1.0"
+description = ""
+authors = ["foryourselfand <foryourselfand@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.98.0"
+numpy = "^1.26.3"
+pillow = "^10.2.0"
+python-multipart = "^0.0.6"
+numba = "^0.58.1"
+pydantic = "^1.1.13"
+redis = "^5.0.1"
+aiobotocore = "^2.11.1"
+asyncpg = "^0.29.0"
+celery = "4.3.0"
+celery-pool-asyncio = "^0.2.0"
+celery-decorator-taskcls = "^0.1.4"
+
+[tool.poetry.group.backend.dependencies]
+gunicorn = "^21.2.0"
+uvicorn = "^0.27.0"
+
+[tool.poetry.group.celery.dependencies]
+redis = "^5.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
